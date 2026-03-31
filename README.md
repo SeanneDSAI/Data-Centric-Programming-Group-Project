@@ -1,108 +1,120 @@
-# Data-Centric-Programming-Group-Project
+# ✈️ Flight Delay Analysis – NYC 2013
 
-Flight Delay Analysis – NYC 2013
-This project explores flight delays from New York City airports (JFK, LGA, EWR) in 2013. We look at which airlines are most delayed, how delays vary by time of day and month, and what routes are busiest. The data comes from the nycflights13 dataset (or similar).
+> Exploring flight delays from New York City airports (JFK, LGA, EWR) across 336,000 flights in 2013.
 
-Team Members & Roles
-Dillon – Data Engineer
-Responsible for loading and cleaning the data, handling missing values, and preparing the dataset for analysis.
+We investigate which airlines are most delayed, how delays vary by time of day and month, and which routes are busiest — using the `nycflights13` dataset.
 
-Jack – Data Analyst
-Does the number crunching: calculates average delays, finds patterns, and extracts insights from the data.
+---
 
-Ollu – Visualization Lead
-Creates clear charts and graphs to show what the numbers mean.
+## 👥 Team Members
 
-Seanne – Documentation Lead
-Keeps the README up to date, manages the repo, and makes sure everything is easy to understand.
+| Name | Role | Responsibilities |
+|------|------|-----------------|
+| **Dillon** | Data Engineer | Loading & cleaning data, handling missing values, preparing the dataset |
+| **Jack** | Data Analyst | Calculating average delays, finding patterns, extracting insights |
+| **Ollu** | Visualization Lead | Creating charts and graphs to communicate findings |
+| **Seanne** | Documentation Lead | Maintaining the README, managing the repo |
 
-How to Run the Project
-Clone the repository
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the repository
+```bash
 git clone https://github.com/your-team/flight-analysis.git
+cd flight-analysis
+```
 
-Install dependencies
-Make sure you have Python 3.8+ installed. Then run:
+### 2. Install dependencies
+
+Requires **Python 3.8+**. Then run:
+```bash
 pip install -r requirements.txt
+```
 
-Run the pipeline
+### 3. Run the pipeline
 
-First, run the data loader:
+Run the scripts **in order** from the project root:
+
+```bash
+# Step 1 – Load and clean the data
 python src/data_loading.py
-This reads the raw CSV and saves a cleaned version in data/processed/.
+# Output: data/processed/
 
-Then run the analysis:
+# Step 2 – Run the analysis
 python src/analysis.py
-This will compute various statistics and may save intermediate results.
+# Output: computed statistics and intermediate results
 
-Finally, run the visualizations:
+# Step 3 – Generate visualizations
 python src/visualization.py
-Plots will be saved in outputs/figures/.
+# Output: outputs/figures/
+```
 
-All scripts are designed to be run from the project root.
+> ⚠️ All scripts must be run from the **project root**.
 
-Data Description
-We have about 336,000 flights from January to December 2013. The key columns are:
+---
 
-year, month, day – flight date
+## 📂 Data Description
 
-dep_time, arr_time – actual departure/arrival times
+~336,000 flights from January–December 2013.
 
-dep_delay, arr_delay – delays in minutes (positive means late)
+| Column | Description |
+|--------|-------------|
+| `year`, `month`, `day` | Flight date |
+| `dep_time`, `arr_time` | Actual departure/arrival times |
+| `dep_delay`, `arr_delay` | Delay in minutes (positive = late) |
+| `carrier` | Airline code (e.g. `UA` = United, `AA` = American) |
+| `origin`, `dest` | Airport codes |
+| `distance` | Flight distance in miles |
 
-carrier – airline code (e.g., UA for United, AA for American)
+> **Note on missing values:** Rows with missing `dep_time` or `arr_time` are treated as cancelled flights and dropped. To analyse cancellations separately, keep these rows before running the analysis script.
 
-origin, dest – airport codes
+---
 
-distance – flight distance in miles
+## 🔍 Key Analyses
 
-Missing values in dep_time or arr_time usually indicate cancelled flights; we handle them by dropping those rows (or you can keep them if you want to analyze cancellations separately).
+- **Average delay per carrier** – which airlines tend to run late?
+- **Delay by time of day** – are early morning flights more punctual?
+- **Seasonal trends** – do delays worsen in winter?
+- **Busiest routes** – most frequent origin–destination pairs
+- **Distance vs. delay** – do longer flights accumulate more delay?
 
-Key Analyses
-Average delay per carrier – which airlines tend to be late?
+See [`src/analysis.py`](src/analysis.py) for all computed metrics.
 
-Delay by time of day – are early morning flights more on time?
+---
 
-Seasonal trends – do delays get worse in winter?
+## 📊 Visualizations
 
-Busiest routes – the most frequent origin-destination pairs.
+All plots are saved as `.png` files in `outputs/figures/`.
 
-Correlation between distance and delay – longer flights might have more accumulated delay.
+| Chart | Description |
+|-------|-------------|
+| Bar chart | Average delay per carrier |
+| Boxplot | Delay distribution by airline |
+| Heatmap | Delay by hour of day and day of week |
+| Scatter plot | Distance vs. delay |
+| Bar chart | Top 10 busiest routes |
 
-Check the analysis.py script for all the calculated metrics.
+---
 
-Visualizations
-Ollu created several plots that illustrate the findings:
+## 📦 Dependencies
 
-Bar chart of average delay per carrier
+Listed in [`requirements.txt`](requirements.txt):
 
-Boxplot of delay distribution for each airline
+- `pandas`
+- `numpy`
+- `matplotlib`
+- `seaborn`
 
-Heatmap of delay by hour of day and day of week
+Install with:
+```bash
+pip install -r requirements.txt
+```
 
-Scatter plot of distance vs. delay
+---
 
-Bar chart of top 10 busiest routes
+## 📝 Notes
 
-All figures are saved as PNG files in outputs/figures/. You can preview them there.
-
-Dependencies
-Python 3.8+
-
-pandas
-
-numpy
-
-seaborn
-
-matplotlib
-
-These are listed in requirements.txt. Install them with pip install -r requirements.txt.
-
-Notes
-We assumed that flights with missing dep_time are cancelled and removed them to focus on actual departures.
-
-The cleaned data is stored in data/processed/ so you don’t have to re‑run the loader each time.
-
-If you have any questions, open an issue on GitHub or contact one of the team members.
-
-Enjoy exploring the delays! ✈️
+- Cleaned data is saved in `data/processed/` — no need to re-run the loader each time.
+- Cancelled flights (missing `dep_time`) are excluded by default to focus on actual departures.
+- Questions? Open a [GitHub Issue](../../issues) or reach out to any team member.
