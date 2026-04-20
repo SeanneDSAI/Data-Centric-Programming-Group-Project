@@ -36,10 +36,10 @@ plt.figure(figsize=(12, 6))
 #A pivot tbale is needed to show the delay for each hour of every month
 pivot_table = df.pivot_table(index='month',columns='hour',values='dep_delay',aggfunc='mean')
 sns.heatmap(pivot_table, cmap='Blues')
-plt.title('Delay by hour of day and day of week')
+plt.title('Delay by hour of day month')
 plt.xlabel('Hour')
 plt.ylabel('Month')
-plt.savefig('Delay_Using_A_Heatmap')
+plt.savefig('Delay_Using_A_Heatmap.png')
 plt.close()
 
 #Fourth Visualisations: Distance vs. delay
@@ -49,7 +49,7 @@ sns.scatterplot(data=df, x='distance', y='arr_delay',alpha = 0.1,color = 'brown'
 plt.title('Distance vs. delay')
 plt.xlabel('Distance')
 plt.ylabel('Delay')
-plt.savefig('FlightDistance vs FlightDelay')
+plt.savefig('FlightDistance vs FlightDelay.png')
 plt.close()
 
 #Fifth Visualisation: Top 10 busiest routes
