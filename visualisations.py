@@ -61,6 +61,6 @@ top_routes.plot(kind = 'bar',color = 'blue')
 plt.title('Top 10 Busiest Routes')
 plt.ylabel('Number of Flights')
 plt.xticks(rotation=45)
-plt.tight_layout
+plt.tight_layout()
 plt.savefig('Top_Ten_Routes.png')
 plt.close()
