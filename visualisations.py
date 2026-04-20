@@ -56,7 +56,7 @@ plt.close()
 plt.figure(figsize=(14, 6))
 df['route'] = df['origin'] + '-' + df['dest']
 top_routes = df['route'].value_counts().head(10)
-#Using Head(10) gets the top tenmin the data frame which is then put in the top_routes variable 
+#Using Head(10) gets the first 10 values from  the data frame which is then put in the top_routes variable 
 top_routes.plot(kind = 'bar',color = 'blue')
 plt.title('Top 10 Busiest Routes')
 plt.ylabel('Number of Flights')
