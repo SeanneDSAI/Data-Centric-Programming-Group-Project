@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 
 
@@ -14,18 +15,30 @@ def clean_data(df):
     Cleans the flights dataframe by removing nulls, duplicates,
     and reformatting the date columns into a single 'date' column.
     """
-    #dropping null values
-    df = df.dropna()
+    
+    before = len(df)
+    #dropping null values of important subsets
+    df = df.dropna(subset=['dep_time', 'arr_time', 'carrier', 'origin', 'dest'])
     
     
-    #gets rid of duplicate values 
+    #gets rid of duplicate values if any
     df = df.drop_duplicates()
     
-    #making new date format 
-    df['date'] = pd.to_datetime(df[['year', 'month', 'day']]).dt.strftime('%Y/%m/%d')
-    df = df.drop(columns=['year', 'month', 'day', 'time_hour'])
+    df = df.dropna(subset=['dep_time', 'arr_time'])
     
+    #validating the data types for numeric columns
+    numeric_cols = df.select_dtypes(include=['number']).columns
+    df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
     
+    #removing whitespace from string columns
+    df['carrier'] = df['carrier'].str.strip()
+    df['origin'] = df['origin'].str.strip()
+    df['dest'] = df['dest'].str.strip()
+    
+    #reseting index of dropped rows
+    df = df.reset_index(drop=True)
+    
+    print(f"Dropped {before - len(df)} rows with missing values")
     return df
     
 def data_exploration(df):
@@ -45,10 +58,6 @@ def main():
 
 
     #getting info about the dataset
-    data_exploration(df)
-    
-
-    
 
     og_len = len(df)
 
