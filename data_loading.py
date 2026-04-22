@@ -1,6 +1,15 @@
 import pandas as pd
 import numpy as np
 
+def get_time_of_day(hour):
+    if 5 <= hour < 12:
+        return 'Morning'
+    elif 12 <= hour < 17:
+        return 'Afternoon'
+    elif 17 <= hour < 21:
+        return 'Evening'
+    else:
+        return 'Night'
 
 
 #uploading the clean data to json and csv files
@@ -47,6 +56,22 @@ def data_exploration(df):
     """
     print(df.head())
     print(df.info())
+    
+    
+def data_engineering(df):
+    #getting the time of dat the plane 
+    df['time_of_day'] = df['hour'].map(get_time_of_day)
+    
+    #plane is delayed leaving the airport
+    df['is_delayed_depature'] = df['dep_delay'] > 0
+    
+    #see if the plane is delayed arriving at the airport
+    df['is_delayed_arrival'] = df['arr_delay'] > 0
+    
+    # calcualting the average speed of the plane
+    df['speed'] = df['distance']/(df['air_time']/ 60).round(2)
+    
+    return df
 
 def main():
         #loading the raw dataset into a pandas datafram
@@ -63,6 +88,8 @@ def main():
 
 
     df = clean_data(df)
+    data_exploration(df)
+    df = data_engineering(df)
     #  even by getting rid of all the null values 97% of values still remain
 
     print(f"{(len(df)/og_len)*100}% of the orginal dataset remains")
