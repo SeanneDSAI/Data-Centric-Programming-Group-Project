@@ -33,7 +33,6 @@ def clean_data(df):
     #gets rid of duplicate values if any
     df = df.drop_duplicates()
     
-    df = df.dropna(subset=['dep_time', 'arr_time'])
     
     #validating the data types for numeric columns
     numeric_cols = df.select_dtypes(include=['number']).columns
@@ -48,6 +47,8 @@ def clean_data(df):
     df = df.reset_index(drop=True)
     
     print(f"Dropped {before - len(df)} rows with missing values")
+    
+    df = data_engineering(df)
     return df
     
 def data_exploration(df):
@@ -71,6 +72,14 @@ def data_engineering(df):
     # calcualting the average speed of the plane
     df['speed'] = df['distance']/(df['air_time']/ 60).round(2)
     
+    df['delay_category'] = pd.cut(df['dep_delay'],
+    bins=[-float('inf'), 0, 15, float('inf')],
+    labels=['On Time', 'Minor', 'Major'])
+    
+    #making new date format, time hour was accurate
+    df['date'] = pd.to_datetime(df[['year', 'month', 'day']]).dt.strftime('%Y/%m/%d')
+    df = df.drop(columns=['year', 'month', 'day', 'time_hour'])
+    
     return df
 
 def main():
@@ -89,15 +98,9 @@ def main():
 
     df = clean_data(df)
     data_exploration(df)
-    df = data_engineering(df)
     #  even by getting rid of all the null values 97% of values still remain
 
     print(f"{(len(df)/og_len)*100}% of the orginal dataset remains")
-
-
-
-
-
 
     csv_file_name = "data/Processed/flights.csv"
     json_file_name = 'data/Processed/flights.json'
