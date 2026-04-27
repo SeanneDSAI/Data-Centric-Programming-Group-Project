@@ -1,7 +1,9 @@
 import pandas as pd
 import numpy as np
 
+
 def get_time_of_day(hour):
+    """Returns the time of day category for a given hour."""
     if 5 <= hour < 12:
         return 'Morning'
     elif 12 <= hour < 17:
@@ -12,100 +14,159 @@ def get_time_of_day(hour):
         return 'Night'
 
 
-#uploading the clean data to json and csv files
-def upload_clean_data(df, csv_file_name,json_file_name):
+def upload_clean_data(df, csv_file_name, json_file_name):
+    """Exports the cleaned dataframe to CSV and JSON formats."""
     df.to_csv(csv_file_name, index=False)
-
     df.to_json(json_file_name, orient='split', compression='infer', index=True)
-    
-    
+
+
+def merge_companion_data(df):
+    """
+    Merges the flights dataframe with four companion datasets:
+    airlines, airports, weather, and planes.
+    """
+    # Load companion datasets
+    airlines = pd.read_csv('data/Raw/airlines.csv')
+    airports = pd.read_csv('data/Raw/airports.csv')
+    weather = pd.read_csv('data/Raw/weather.csv')
+    planes = pd.read_csv('data/Raw/planes.csv')
+
+    # Merge airlines - adds full airline name
+    df = df.merge(airlines, on='carrier', how='left')
+
+    # Merge planes - adds aircraft manufacturer, model, year, engine type
+    df = df.merge(planes[['tailnum', 'year', 'manufacturer', 'model', 'engines', 'engine']],
+                  on='tailnum', how='left', suffixes=('', '_plane'))
+
+    # Merge airports for origin - adds origin city and coordinates
+    airports_origin = airports[['faa', 'name', 'lat', 'lon', 'tzone']].rename(columns={
+        'faa': 'origin',
+        'name': 'origin_airport_name',
+        'lat': 'origin_lat',
+        'lon': 'origin_lon',
+        'tzone': 'origin_tzone'
+    })
+    df = df.merge(airports_origin, on='origin', how='left')
+
+    # Merge airports for destination - adds destination city and coordinates
+    airports_dest = airports[['faa', 'name', 'lat', 'lon']].rename(columns={
+        'faa': 'dest',
+        'name': 'dest_airport_name',
+        'lat': 'dest_lat',
+        'lon': 'dest_lon'
+    })
+    df = df.merge(airports_dest, on='dest', how='left')
+
+    # Merge weather - adds wind speed, visibility, precipitation etc.
+    weather_cols = ['origin', 'month', 'day', 'hour', 'temp', 'wind_speed', 'precip', 'visib']
+    df = df.merge(weather[weather_cols], on=['origin', 'month', 'day', 'hour'], how='left')
+
+    print(f"Merged airlines, airports, weather and planes data successfully")
+    print(f"Dataset now has {df.shape[1]} columns")
+
+    return df
+
+
 def clean_data(df):
     """
     Cleans the flights dataframe by removing nulls, duplicates,
     and reformatting the date columns into a single 'date' column.
     """
-    
     before = len(df)
-    #dropping null values of important subsets
+
+    # Drop null values of important subsets
     df = df.dropna(subset=['dep_time', 'arr_time', 'carrier', 'origin', 'dest'])
-    
-    
-    #gets rid of duplicate values if any
+
+    # Remove duplicate rows
     df = df.drop_duplicates()
-    
-    
-    #validating the data types for numeric columns
+
+    # Validate data types for numeric columns
     numeric_cols = df.select_dtypes(include=['number']).columns
     df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
-    
-    #removing whitespace from string columns
+
+    # Remove whitespace from string columns
     df['carrier'] = df['carrier'].str.strip()
     df['origin'] = df['origin'].str.strip()
     df['dest'] = df['dest'].str.strip()
-    
-    #reseting index of dropped rows
+
+    # Reset index after dropping rows
     df = df.reset_index(drop=True)
-    
+
     print(f"Dropped {before - len(df)} rows with missing values")
-    
+
     df = data_engineering(df)
     return df
-    
+
+
 def data_exploration(df):
-    """
-    Exploring thdata to find out key inforamtion about it
-    """
+    """Prints basic information about the dataframe."""
     print(df.head())
     print(df.info())
-    
-    
+
+
 def data_engineering(df):
-    #getting the time of dat the plane 
+    """
+    Engineers new features from existing columns using
+    NumPy vectorised operations where possible.
+    """
+    # Time of day category
     df['time_of_day'] = df['hour'].map(get_time_of_day)
-    
-    #plane is delayed leaving the airport
-    df['is_delayed_depature'] = df['dep_delay'] > 0
-    
-    #see if the plane is delayed arriving at the airport
-    df['is_delayed_arrival'] = df['arr_delay'] > 0
-    
-    # calcualting the average speed of the plane
-    df['speed'] = df['distance']/(df['air_time']/ 60).round(2)
-    
+
+    # Delay flags using NumPy vectorised where
+    df['is_delayed_departure'] = np.where(df['dep_delay'] > 0, True, False)
+    df['is_delayed_arrival'] = np.where(df['arr_delay'] > 0, True, False)
+
+    # Average speed using vectorised operation
+    df['speed'] = np.round(df['distance'] / (df['air_time'] / 60), 2)
+
+    # Delay category
     df['delay_category'] = pd.cut(df['dep_delay'],
-    bins=[-float('inf'), 0, 15, float('inf')],
-    labels=['On Time', 'Minor', 'Major'])
-    
-    #making new date format, time hour was accurate
+                                  bins=[-float('inf'), 0, 15, float('inf')],
+                                  labels=['On Time', 'Minor', 'Major'])
+
+    # Aircraft age at time of flight (year column comes from planes merge)
+    df['plane_age'] = np.where(df['year_plane'].notna(),
+                               2013 - df['year_plane'],
+                               np.nan)
+
+    # Weather risk score using NumPy broadcasting-style calculation
+    # Normalise wind and visibility into a 0-1 risk score
+    if 'wind_speed' in df.columns and 'visib' in df.columns:
+        wind_norm = np.clip(df['wind_speed'].fillna(0) / 50, 0, 1)
+        visib_norm = np.clip(1 - (df['visib'].fillna(10) / 10), 0, 1)
+        df['weather_risk'] = np.round((wind_norm + visib_norm) / 2, 3)
+
+    # New date column
     df['date'] = pd.to_datetime(df[['year', 'month', 'day']]).dt.strftime('%Y/%m/%d')
-    df = df.drop(columns=['year', 'month', 'day', 'time_hour'])
-    
+    df = df.drop(columns=['year', 'month', 'day', 'time_hour'], errors='ignore')
+
     return df
 
+
 def main():
-        #loading the raw dataset into a pandas datafram
+    # Load the raw dataset
     try:
-        df = pd.read_csv("data/Raw/flights.csv")
+        df = pd.read_csv('data/Raw/flights.csv')
     except FileNotFoundError:
         print("Error: flights.csv not found in data/Raw/")
-
-
-    #getting info about the dataset
+        return
 
     og_len = len(df)
 
+    # Merge companion datasets before cleaning
+    df = merge_companion_data(df)
 
+    # Clean and engineer features
     df = clean_data(df)
     data_exploration(df)
-    #  even by getting rid of all the null values 97% of values still remain
 
-    print(f"{(len(df)/og_len)*100}% of the orginal dataset remains")
+    print(f"{round((len(df) / og_len) * 100, 2)}% of the original dataset remains")
 
-    csv_file_name = "data/Processed/flights.csv"
+    csv_file_name = 'data/Processed/flights.csv'
     json_file_name = 'data/Processed/flights.json'
 
     upload_clean_data(df, csv_file_name, json_file_name)
-    
-    
+
+
 if __name__ == "__main__":
     main()
