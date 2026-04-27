@@ -63,6 +63,7 @@ def merge_companion_data(df):
 
     print(f"Merged airlines, airports, weather and planes data successfully")
     print(f"Dataset now has {df.shape[1]} columns")
+    
 
     return df
 
@@ -144,7 +145,6 @@ def data_engineering(df):
 
 
 def main():
-    # Load the raw dataset
     try:
         df = pd.read_csv('data/Raw/flights.csv')
     except FileNotFoundError:
@@ -153,14 +153,21 @@ def main():
 
     og_len = len(df)
 
-    # Merge companion datasets before cleaning
     df = merge_companion_data(df)
-
-    # Clean and engineer features
     df = clean_data(df)
     data_exploration(df)
 
     print(f"{round((len(df) / og_len) * 100, 2)}% of the original dataset remains")
+
+    # Drop unused columns BEFORE saving to keep file size manageable
+    cols_to_drop = [
+        'sched_dep_time', 'sched_arr_time', 'flight', 'minute',
+        'year_plane', 'engines', 'model',
+        'origin_airport_name', 'origin_lat', 'origin_lon', 'origin_tzone',
+        'dest_airport_name', 'dest_lat', 'dest_lon',
+        'temp', 'precip'
+    ]
+    df = df.drop(columns=cols_to_drop, errors='ignore')
 
     csv_file_name = 'data/Processed/flights.csv'
     json_file_name = 'data/Processed/flights.json'
