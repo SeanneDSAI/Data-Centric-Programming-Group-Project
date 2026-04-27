@@ -83,3 +83,17 @@ for origin in df["origin"].unique():
 print()
 
 
+# Delay rates by time of day
+print("\n5. Delay Rates by Time of Day\n")
+times = ["Morning", "Afternoon", "Evening", "Night"]
+for t in times:
+    subset = df[df["time_of_day"] == t]
+    total = len(subset)
+    # is_delayed_depature has a typo in the dataset, keeping it as is
+    delayed = np.sum(subset["is_delayed_depature"].values)
+    rate = round((delayed / total) * 100, 1)
+    mean_delay = round(np.mean(subset["dep_delay"].dropna().values), 2)
+    print(t, "- Total:", total, "| Delayed:", delayed, "| Rate:", str(rate) + "%", "| Mean Delay:", mean_delay)
+print()
+
+
