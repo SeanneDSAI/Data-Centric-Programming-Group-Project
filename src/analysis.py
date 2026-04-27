@@ -58,3 +58,15 @@ dep_iqr = np.percentile(dep_delay, 75) - np.percentile(dep_delay, 25)
 arr_iqr = np.percentile(arr_delay, 75) - np.percentile(arr_delay, 25)
 print(f"\n  IQR (Dep Delay):  {dep_iqr:.2f} mins")
 print(f"  IQR (Arr Delay):  {arr_iqr:.2f} mins\n")
+
+
+# Average delay per carrier
+print("\n3. Mean Departure Delay by Carrier\n")
+carriers = df["carrier"].unique()
+for c in carriers:
+    carrier_delays = df[df["carrier"] == c]["dep_delay"].dropna().values
+    mean_delay = round(np.mean(carrier_delays), 2)
+    std_delay = round(np.std(carrier_delays), 2)
+    print(c, "- Mean:", mean_delay, "\n   - Std Dev:", std_delay)
+print()
+
