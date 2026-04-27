@@ -97,3 +97,21 @@ for t in times:
 print()
 
 
+# Outlier detection using IQR
+print("\n6. Outlier Detection for Departure Delay (IQR Method)\n")
+q1 = np.percentile(dep_delay, 25)
+q3 = np.percentile(dep_delay, 75)
+iqr = q3 - q1
+lower = q1 - 1.5 * iqr
+upper = q3 + 1.5 * iqr
+
+outliers = dep_delay[(dep_delay < lower) | (dep_delay > upper)]
+
+print("Q1:", q1)
+print("Q3:", q3)
+print("IQR:", iqr)
+print("Lower bound:", lower)
+print("Upper bound:", upper)
+print("Number of outliers:", len(outliers))
+print("Percentage:", round((len(outliers) / len(dep_delay)) * 100, 2), "%")
+print("Worst delay in dataset:", np.max(outliers), "mins")
