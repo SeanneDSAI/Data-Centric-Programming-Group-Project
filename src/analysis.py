@@ -36,3 +36,25 @@ numeric_cols = {
 
 for label, arr in numeric_cols.items():
     summarise_column(arr, label)
+    
+
+# Percentile breakdown for Delays
+print("\n2. Percentile Breakdown - Departure / Arrival Delays\n")
+
+dep_delay = df["dep_delay"].dropna().values
+arr_delay = df["arr_delay"].dropna().values
+
+percentiles = [10, 25, 50, 75, 90, 95, 99]
+
+print(f"  {'Percentile':<15} {'Dep Delay (mins)':>20} {'Arr Delay (mins)':>20}")
+print(f"  {'-'*60}")
+for p in percentiles:
+    d = np.percentile(dep_delay, p)
+    a = np.percentile(arr_delay, p)
+    print(f"  {p}th{'':<11} {d:>20.2f} {a:>20.2f}")
+
+# IQR for both
+dep_iqr = np.percentile(dep_delay, 75) - np.percentile(dep_delay, 25)
+arr_iqr = np.percentile(arr_delay, 75) - np.percentile(arr_delay, 25)
+print(f"\n  IQR (Dep Delay):  {dep_iqr:.2f} mins")
+print(f"  IQR (Arr Delay):  {arr_iqr:.2f} mins\n")
