@@ -90,7 +90,6 @@ def main():
         print("Error: flights.csv not found in data/Raw/")
 
 
-
     #getting info about the dataset
 
     og_len = len(df)
