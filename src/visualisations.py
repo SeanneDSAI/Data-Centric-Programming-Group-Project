@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns 
 
 #loading the dataset
-df = pd.read_csv('data/Raw/flights.csv')
+df = pd.read_csv('data\Raw\flights.csv')
 
 
 
