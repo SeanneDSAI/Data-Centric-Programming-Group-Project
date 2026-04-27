@@ -70,3 +70,16 @@ for c in carriers:
     print(c, "- Mean:", mean_delay, "\n   - Std Dev:", std_delay)
 print()
 
+
+# Delay stats per airport
+print("\n4. Departure Delay Stats by Airport\n")
+for origin in df["origin"].unique():
+    origin_delays = df[df["origin"] == origin]["dep_delay"].dropna().values
+    print(origin)
+    print("    Mean:", round(np.mean(origin_delays), 2))
+    print("    Median:", round(np.median(origin_delays), 2))
+    print("    Std Dev:", round(np.std(origin_delays), 2))
+    print("    95th percentile:", np.percentile(origin_delays, 95))
+print()
+
+
