@@ -37,7 +37,7 @@ numeric_cols = {
 for label, arr in numeric_cols.items():
     summarise_column(arr, label)
     
-    
+
 # Percentile breakdown for Delays
 print("\n2. Percentile Breakdown - Departure / Arrival Delays\n")
 

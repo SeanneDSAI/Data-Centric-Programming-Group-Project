@@ -137,9 +137,7 @@ def data_engineering(df):
         visib_norm = np.clip(1 - (df['visib'].fillna(10) / 10), 0, 1)
         df['weather_risk'] = np.round((wind_norm + visib_norm) / 2, 3)
 
-    # New date column
-    df['date'] = pd.to_datetime(df[['year', 'month', 'day']]).dt.strftime('%Y/%m/%d')
-    df = df.drop(columns=['year', 'month', 'day', 'time_hour'], errors='ignore')
+
 
     return df
 
