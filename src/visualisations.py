@@ -16,7 +16,7 @@ sns.barplot(x = avg_delay_by_carrier.index,y = avg_delay_by_carrier.values,hue =
 plt.title('Average delay per carrier')
 plt.xlabel('Carrier')
 plt.ylabel('Minutes Late')
-plt.savefig('Avg_Carrier_Delays.png')
+plt.savefig('Graphs/Avg_Carrier_Delays.png')
 plt.close()
 
 #Second Visualisation: Delay distribution by airline
@@ -28,20 +28,19 @@ plt.ylim(-50, 400)
 plt.yticks(range(0, 401, 50))
 plt.xlabel('Carrier')
 plt.ylabel('Delay per carrier')
-plt.savefig('Carrier_Delay_Distribution.png')
+plt.savefig('Graphs/Carrier_Delay_Distribution.png')
 plt.close()
 
 #Third Visualisation: Delay by hour of day and day of week
 plt.figure(figsize=(12, 6))
-df['date'] = pd.to_datetime(df['date'])
-df['month'] = df['date'].dt.month
+
 #A pivot tbale is needed to show the delay for each hour of every month
 pivot_table = df.pivot_table(index='month',columns='hour',values='dep_delay',aggfunc='mean')
 sns.heatmap(pivot_table, cmap='Blues')
 plt.title('Delay by hour of day month')
 plt.xlabel('Hour')
 plt.ylabel('Month')
-plt.savefig('Delay_Using_A_Heatmap.png')
+plt.savefig('Graphs/Delay_Using_A_Heatmap.png')
 plt.close()
 
 #Fourth Visualisations: Distance vs. delay
@@ -51,7 +50,7 @@ sns.scatterplot(data=df, x='distance', y='arr_delay',alpha = 0.1,color = 'brown'
 plt.title('Distance vs. delay')
 plt.xlabel('Distance')
 plt.ylabel('Delay')
-plt.savefig('FlightDistance vs FlightDelay.png')
+plt.savefig('Graphs/FlightDistance vs FlightDelay.png')
 plt.close()
 
 #Fifth Visualisation: Top 10 busiest routes
@@ -64,5 +63,7 @@ plt.title('Top 10 Busiest Routes')
 plt.ylabel('Number of Flights')
 plt.xticks(rotation=45)
 plt.tight_layout()
-plt.savefig('Top_Ten_Routes.png')
+plt.savefig('Graphs/Top_Ten_Routes.png')
 plt.close()
+
+print("complete")
