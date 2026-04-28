@@ -33,6 +33,8 @@ plt.close()
 
 #Third Visualisation: Delay by hour of day and day of week
 plt.figure(figsize=(12, 6))
+df['date'] = pd.to_datetime(df['date'])
+df['month'] = df['date'].dt.month
 #A pivot tbale is needed to show the delay for each hour of every month
 pivot_table = df.pivot_table(index='month',columns='hour',values='dep_delay',aggfunc='mean')
 sns.heatmap(pivot_table, cmap='Blues')
